@@ -10,10 +10,9 @@ function shuffled_X = shuffle_matrix_along_columns(X)
 
 %% Calculation
     shuffled_X = X;
-    
+    s = rand(size(X));
+    [~, perm] = sort(s, 1);
     for r = 1:size(X, 2)
-        s = rand(size(X, 1), 1);
-        [~, perm] = sort(s);
-        shuffled_X(:, r) = X(perm, r);
+        shuffled_X(:, r) = X(perm(:, r), r);
     end
 end
