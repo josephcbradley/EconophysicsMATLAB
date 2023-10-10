@@ -32,6 +32,9 @@ for tau = 1:n_windows %index for windows
     X = R(t:t+window_size-1, :);
     %correlation coefficients
     C = weightedcorrs(X, w);
-    rho(tau) = mean(utri_to_vec(C)); %mean of upper triangle
+    %remove anything not significant 
+    pvals = bootstrap_correlation_signifiance(X, C, 100, @(x) weightedcorrs(x, w));
+    C(pvals >= 0.05) = NaN;
+    rho(tau) = mean(utri_to_vec(C), 'omitnan'); %mean of upper triangle
 end
 end
