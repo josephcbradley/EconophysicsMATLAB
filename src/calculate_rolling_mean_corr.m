@@ -1,40 +1,49 @@
-function rho = calculate_rolling_mean_corr(R, w, n_windows, dt_step, window_size)
+function rho = calculate_rolling_mean_corr(R, w, dt, t_range)
 %% Description 
 % Calcualtes the rolling mean of the upper triangle of the correlation matrix
 % C, calculated from rolling windows over X
 
 %% Inputs
 % R - the T-by-N matrix of returns 
-% w - the 1-by-window_size
-% n_windows - the scalar representing the number of windows over which to 
-% calculate the correlations
-% dt_step - the time between windows 
-% window_size - the size of each window
+% w - the 1-by-dt vector of weights
+% dt - the length of the window over which correlations are measured
+% t_range - the vector of time points t at which correlations will be
+% measured
 
 %% Ouputs 
-% mean_corrs - the n_windows-by-1 vector of the mean of the correlation 
+% rho - the n_windows-by-1 vector of the mean of the correlation 
 % coefficients
 
 %% Setup 
 %check that w and window_size match 
-if ~isequal(size(w, 2), window_size)
+if ~isequal(size(w, 2), dt)
     error("The weights vector is not equal to the window size")
 end
 
+%check that the first value of t_range is at least dt
+if t_range(1) < dt 
+    error('The first values of t is less than dt.')
+end
+
+%check that the last value of t is within the size of R
+if t_range(end) > size(R, 1)
+    error('The final value for t is too large given R.')
+end
+
 %allocate memory
-rho = NaN(n_windows, 1);
+rho = NaN(length(t_range), 1);
 
 %% Calculation
-for tau = 1:n_windows %index for windows 
-    %Calculate starting time
-    t = (dt_step * tau) - (dt_step - 1);
+for k = 1:length(t_range) %index for windows 
+    t = t_range(k);
+    local_tspan = t-dt+1:t;
     %get subset of data used for correlation coefficients 
-    X = R(t:t+window_size-1, :);
+    X = R(local_tspan, :);
     %correlation coefficients
     C = weightedcorrs(X, w);
     %remove anything not significant 
     pvals = bootstrap_correlation_signifiance(X, C, 100, @(x) weightedcorrs(x, w));
     C(pvals >= 0.05) = NaN;
-    rho(tau) = mean(utri_to_vec(C), 'omitnan'); %mean of upper triangle
+    rho(k) = mean(utri_to_vec(C), 'omitnan'); %mean of upper triangle
 end
 end
