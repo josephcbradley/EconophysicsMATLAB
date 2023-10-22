@@ -1,4 +1,4 @@
-function rho = calculate_rolling_mean_corr(R, w, dt, t_range)
+function [rho, n_significant_corrs] = calculate_rolling_mean_corr(R, w, dt, t_range)
 %% Description 
 % Calcualtes the rolling mean of the upper triangle of the correlation matrix
 % C, calculated from rolling windows over X
@@ -32,7 +32,7 @@ end
 
 %allocate memory
 rho = NaN(length(t_range), 1);
-
+n_significant_corrs = NaN(length(t_range), 1);
 %% Calculation
 for k = 1:length(t_range) %index for windows 
     t = t_range(k);
@@ -43,6 +43,9 @@ for k = 1:length(t_range) %index for windows
     C = weightedcorrs(X, w);
     %remove anything not significant 
     pvals = bootstrap_correlation_signifiance(X, C, 100, @(x) weightedcorrs(x, w));
+    %calculate significant corrs 
+    significant = pvals < 0.05;
+    n_significant_corrs(k) = sum(utri_to_vec(significant));
     C(pvals >= 0.05) = NaN;
     rho(k) = mean(utri_to_vec(C), 'omitnan'); %mean of upper triangle
 end
