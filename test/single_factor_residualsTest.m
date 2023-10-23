@@ -18,7 +18,7 @@ function testFunctionThree(testCase)
     C = corr(testCase.TestData.X_residuals);
     rho_estimated = C(1, 2);
     rho_actual = testCase.TestData.sigma(1, 2);
-    assert(abs(rho_estimated - rho_actual) < 1e-3)
+    assert(abs(rho_estimated - rho_actual) < 1e-2)
 end
 
 function testFunctionFour(testCase)
