@@ -38,6 +38,8 @@ R = 0.5 * (R + R');
 %check pos def
 [~, p] = chol(R);
 if p ~= 0
-    error("R is not positive semi-definite!");
+    eigs = eig(R);
+    min_eig = min(eigs(~isnan(eigs)));
+    warning(compose("R is not positive semi-definite - smallest eigenvalue is %.6f", min_eig));
 end
 end
