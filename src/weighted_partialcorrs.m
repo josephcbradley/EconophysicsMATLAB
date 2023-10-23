@@ -1,6 +1,6 @@
 function R = weighted_partialcorrs(X, Y, w)
 %% Description 
-% Calculates the exponentially weighted correlation matrix R of a matrix X,
+% Calculates the exponentially weighted partialcorrelation matrix R of a matrix X,
 % given Y
 %% Inputs
 % X: a dt-by-N matrix of data points (e.g. returns)
