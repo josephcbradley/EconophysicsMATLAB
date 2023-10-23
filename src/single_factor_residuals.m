@@ -36,7 +36,7 @@ alphas = NaN(N, 1);
 betas = NaN(N, 1);
 
 for i = 1:N
-    p = polyfit(X(:, i), Y, 1);
+    p = polyfit(Y, X(:, i), 1);
     residuals(:, i) = X(:, i) - polyval(p, Y);
     alphas(i) = p(1);
     betas(i) = p(2);
