@@ -29,9 +29,15 @@ X_less_mean = X - column_means;
 %covariance calculation 
 %lhs is X' with each row weighted
 R = (X_less_mean' .* w) * X;
+%normalize
+D = diag(diag(R));
+Dinvsqrt = inv(sqrt(D));
+R = Dinvsqrt * R * Dinvsqrt;
 %symmetry 
 R = 0.5 * (R + R');
-%normalize
-covars = diag(R); 
-R = R ./ sqrt(covars * covars');
+%check pos def
+[~, p] = chol(R);
+if p ~= 0
+    error("R is not positive semi-definite!");
+end
 end
