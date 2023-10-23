@@ -24,6 +24,7 @@ arguments
         dt (1, 1) double
         t_range (1, :) double
         options.CorrHandle (1, 1) function_handle = @(r, y) weighted_partialcorrs(r, y, generate_expweights(dt, dt / 3))
+        options.RemoveInsignificant (1, 1) logical = true
 end
 
 
@@ -49,11 +50,13 @@ for k = 1:length(t_range) %index for windows
     %correlation coefficients
     C = options.CorrHandle(X, Y(local_tspan));
     %remove anything not significant 
-    pvals = bootstrap_correlation_signifiance(X, C, 100, @(r) options.CorrHandle(r, Y(local_tspan)));
-    %calculate significant corrs 
-    significant = pvals < 0.05;
-    n_significant_corrs(k) = sum(utri_to_vec(significant));
-    C(pvals >= 0.05) = NaN;
+    if options.RemoveInsignificant
+        pvals = bootstrap_correlation_signifiance(X, C, 100, @(r) options.CorrHandle(r, Y(local_tspan)));
+        %calculate significant corrs 
+        significant = pvals < 0.05;
+        n_significant_corrs(k) = sum(utri_to_vec(significant));
+        C(pvals >= 0.05) = NaN;
+    end
     rho(k) = mean(utri_to_vec(C), 'omitnan'); %mean of upper triangle
 end
 end
