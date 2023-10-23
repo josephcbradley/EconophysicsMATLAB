@@ -11,6 +11,7 @@ function testFunctionTwo(testCase)
     %check that ouput is bounded
     assert(max(testCase.TestData.rho) <= 1)
     assert(min(testCase.TestData.rho) >= -1)
+    assert(isempty(find(~isreal(testCase.TestData.rho), 1)));
 end
 
 function setup(testCase)  
@@ -24,6 +25,7 @@ function setup(testCase)
     testCase.TestData.w = generate_expweights(testCase.TestData.dt, ...
         testCase.TestData.theta);
     testCase.TestData.t_range = testCase.TestData.dt:testCase.TestData.dt_step:testCase.TestData.T;
+    testCase.TestData.hndl = @(x) weightedcorrs(x, testCase.TestData.w);
     testCase.TestData.rho = calculate_rolling_mean_corr(testCase.TestData.R, ...
-        testCase.TestData.w, testCase.TestData.dt, testCase.TestData.t_range);
+        testCase.TestData.dt, testCase.TestData.t_range, CorrHandle = testCase.TestData.hndl);
 end

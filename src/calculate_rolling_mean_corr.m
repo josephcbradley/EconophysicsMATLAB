@@ -1,11 +1,10 @@
-function [rho, n_significant_corrs] = calculate_rolling_mean_corr(R, w, dt, t_range)
+function [rho, n_significant_corrs] = calculate_rolling_mean_corr(R, dt, t_range, options)
 %% Description 
 % Calcualtes the rolling mean of the upper triangle of the correlation matrix
 % C, calculated from rolling windows over X
 
 %% Inputs
 % R - the T-by-N matrix of returns 
-% w - the 1-by-dt vector of weights
 % dt - the length of the window over which correlations are measured
 % t_range - the vector of time points t at which correlations will be
 % measured
@@ -13,12 +12,19 @@ function [rho, n_significant_corrs] = calculate_rolling_mean_corr(R, w, dt, t_ra
 %% Ouputs 
 % rho - the n_windows-by-1 vector of the mean of the correlation 
 % coefficients
+% n_significant_corrs - the number of coefficients in the upper triangle of
+% the correlation matrix that are significant at the 5% level
 
 %% Setup 
-%check that w and window_size match 
-if ~isequal(size(w, 2), dt)
-    error("The weights vector is not equal to the window size")
+
+arguments
+        R (:, :) double
+        dt (1, 1) double
+        t_range (1, :) double
+        options.CorrHandle (1, 1) function_handle = @(r) weightedcorrs(r, generate_expweights(dt, dt/3))
+
 end
+
 
 %check that the first value of t_range is at least dt
 if t_range(1) < dt 
@@ -40,9 +46,9 @@ for k = 1:length(t_range) %index for windows
     %get subset of data used for correlation coefficients 
     X = R(local_tspan, :);
     %correlation coefficients
-    C = weightedcorrs(X, w);
+    C = options.CorrHandle(X);
     %remove anything not significant 
-    pvals = bootstrap_correlation_signifiance(X, C, 100, @(x) weightedcorrs(x, w));
+    pvals = bootstrap_correlation_signifiance(X, C, 100, options.CorrHandle);
     %calculate significant corrs 
     significant = pvals < 0.05;
     n_significant_corrs(k) = sum(utri_to_vec(significant));
