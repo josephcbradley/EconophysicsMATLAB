@@ -1,4 +1,4 @@
-function R = weightedcorrs(X, w)
+function R = weighted_pearson_corrs(X, w)
 %% Description 
 % Calculates the exponentially weighted correlation matrix R of a matrix X
 %% Inputs

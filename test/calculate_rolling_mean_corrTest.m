@@ -25,7 +25,7 @@ function setup(testCase)
     testCase.TestData.w = generate_expweights(testCase.TestData.dt, ...
         testCase.TestData.theta);
     testCase.TestData.t_range = testCase.TestData.dt:testCase.TestData.dt_step:testCase.TestData.T;
-    testCase.TestData.hndl = @(x) weightedcorrs(x, testCase.TestData.w);
+    testCase.TestData.hndl = @(x) weighted_pearson_corrs(x, testCase.TestData.w);
     testCase.TestData.rho = calculate_rolling_mean_corr(testCase.TestData.R, ...
         testCase.TestData.dt, testCase.TestData.t_range, CorrHandle = testCase.TestData.hndl);
 end

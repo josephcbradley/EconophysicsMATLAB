@@ -1,4 +1,4 @@
-function tests = weightedcorrsTest
+function tests = weighted_pearson_corrsTest
     tests = functiontests(localfunctions);
 end
 
@@ -26,5 +26,5 @@ function setup(testCase)
     testCase.TestData.N = 100;
     testCase.TestData.X = randn(testCase.TestData.dt, testCase.TestData.N);
     testCase.TestData.w = generate_expweights(testCase.TestData.dt, testCase.TestData.theta);
-    testCase.TestData.C = weightedcorrs(testCase.TestData.X, testCase.TestData.w);
+    testCase.TestData.C = weighted_pearson_corrs(testCase.TestData.X, testCase.TestData.w);
 end
