@@ -1,4 +1,4 @@
-function R = weighted_pearson_corrs(X, w)
+function R = weighted_pearson_corrs(X, w, options)
 %% Description 
 % Calculates the exponentially weighted correlation matrix R of a matrix X
 %% Inputs
@@ -7,6 +7,15 @@ function R = weighted_pearson_corrs(X, w)
 %% Ouputs 
 % R: the N-by-N correlation matrix. 
 %% Setup 
+
+
+arguments
+    X (:, :) double
+    w (:, :) double
+    options.CheckPosSemiDef (1, 1) logical = false
+end
+
+
 dt = size(X, 1);
 %check that weights has the correct length 
 if ~isequal(size(w), [1, dt])
@@ -35,11 +44,13 @@ Dinvsqrt = inv(sqrt(D));
 R = Dinvsqrt * R * Dinvsqrt;
 %symmetry 
 R = 0.5 * (R + R');
-%check pos def
-[~, p] = chol(R);
-if p ~= 0
-    eigs = eig(R);
-    min_eig = min(eigs(~isnan(eigs)));
-    warning(compose("R is not positive semi-definite - smallest eigenvalue is %.6f", min_eig));
+if options.CheckPosSemiDef
+    %check pos def
+    [~, p] = chol(R);
+    if p ~= 0
+        eigs = eig(R);
+        min_eig = min(eigs(~isnan(eigs)));
+        warning(compose("R is not positive semi-definite - smallest eigenvalue is %.6f", min_eig));
+    end
 end
 end

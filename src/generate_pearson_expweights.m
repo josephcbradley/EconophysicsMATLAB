@@ -1,4 +1,4 @@
-function w = generate_expweights(dt, theta)
+function w = generate_pearson_expweights(dt, theta)
 %% Description 
 % Generate exponential weights for statistics, as described in Pozzi et al 
 % 2012 (https://doi.org/10.1140/epjb/e2012-20697-x)
