@@ -22,6 +22,7 @@ arguments
         dt (1, 1) double
         t_range (1, :) double
         options.CorrHandle (1, 1) function_handle = @(r) weighted_pearson_corrs(r, generate_expweights(dt, dt/3))
+        options.RemoveInsignificant (1, :) logical = true
 
 end
 
@@ -47,12 +48,18 @@ for k = 1:length(t_range) %index for windows
     X = R(local_tspan, :);
     %correlation coefficients
     C = options.CorrHandle(X);
-    %remove anything not significant 
-    pvals = bootstrap_correlation_signifiance(X, C, 100, options.CorrHandle);
-    %calculate significant corrs 
-    significant = pvals < 0.05;
-    n_significant_corrs(k) = sum(utri_to_vec(significant));
-    C(pvals >= 0.05) = NaN;
+    C = force_symmetric(C); %bc MATLAB sometimes doesn't!
+    if options.RemoveInsignificant %remove anything not significant 
+        pvals = bootstrap_correlation_signifiance(X, C, 100, options.CorrHandle);
+        %calculate significant corrs 
+        significant = pvals < 0.05;
+        n_significant_corrs(k) = sum(utri_to_vec(significant));
+        C(pvals >= 0.05) = 0;
+        C = nearest_pos_semi_definite(C);
+        if ~isreal(C)
+            warning("C is not real!")
+        end
+    end
     rho(k) = mean(utri_to_vec(C), 'omitnan'); %mean of upper triangle
 end
 end
