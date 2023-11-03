@@ -1,4 +1,4 @@
-function R = weighted_pearson_corrs(X, w, options)
+function C = weighted_pearson_corrs(X, w)
 %% Description 
 % Calculates the exponentially weighted correlation matrix R of a matrix X
 %% Inputs
@@ -12,7 +12,6 @@ function R = weighted_pearson_corrs(X, w, options)
 arguments
     X (:, :) double
     w (:, :) double
-    options.CheckPosSemiDef (1, 1) logical = false
 end
 
 
@@ -37,20 +36,12 @@ column_means = w * X;
 X_less_mean = X - column_means;
 %covariance calculation 
 %lhs is X' with each row weighted
-R = (X_less_mean' .* w) * X;
+C = (X_less_mean' .* w) * X;
 %normalize
-D = diag(diag(R));
-Dinvsqrt = inv(sqrt(D));
-R = Dinvsqrt * R * Dinvsqrt;
-%symmetry 
-R = 0.5 * (R + R');
-if options.CheckPosSemiDef
-    %check pos def
-    [~, p] = chol(R);
-    if p ~= 0
-        eigs = eig(R);
-        min_eig = min(eigs(~isnan(eigs)));
-        warning(compose("R is not positive semi-definite - smallest eigenvalue is %.6f", min_eig));
-    end
-end
+D = diag(C) + eps; %add tiny quantity eps to ensure things are not singular
+C = C ./ sqrt(D * D');
+%make symmetric 
+C = (C + C') / 2;
+%guarantee pos_semi_def 
+C = nearest_pos_semi_definite(C);
 end
