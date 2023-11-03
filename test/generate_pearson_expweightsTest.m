@@ -1,4 +1,4 @@
-function tests = generate_expweightsTest
+function tests = generate_pearson_expweightsTest
     tests = functiontests(localfunctions);
 end
 
@@ -22,5 +22,5 @@ function setup(testCase)
     %create data
     testCase.TestData.dt = 1000;
     testCase.TestData.theta = testCase.TestData.dt / 3;
-    testCase.TestData.w = generate_expweights(testCase.TestData.dt, testCase.TestData.theta);
+    testCase.TestData.w = generate_pearson_expweights(testCase.TestData.dt, testCase.TestData.theta);
 end

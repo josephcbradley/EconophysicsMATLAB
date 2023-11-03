@@ -25,6 +25,6 @@ function setup(testCase)
     testCase.TestData.theta = testCase.TestData.dt / 3;
     testCase.TestData.N = 100;
     testCase.TestData.X = randn(testCase.TestData.dt, testCase.TestData.N);
-    testCase.TestData.w = generate_expweights(testCase.TestData.dt, testCase.TestData.theta);
+    testCase.TestData.w = generate_pearson_expweights(testCase.TestData.dt, testCase.TestData.theta);
     testCase.TestData.C = weighted_pearson_corrs(testCase.TestData.X, testCase.TestData.w);
 end

@@ -22,7 +22,7 @@ function setup(testCase)
     testCase.TestData.dt = 50;
     testCase.TestData.R = randn(testCase.TestData.T, testCase.TestData.N);
     testCase.TestData.theta = testCase.TestData.dt / 3;
-    testCase.TestData.w = generate_expweights(testCase.TestData.dt, ...
+    testCase.TestData.w = generate_pearson_expweights(testCase.TestData.dt, ...
         testCase.TestData.theta);
     testCase.TestData.t_range = testCase.TestData.dt:testCase.TestData.dt_step:testCase.TestData.T;
     testCase.TestData.hndl = @(x) weighted_pearson_corrs(x, testCase.TestData.w);
