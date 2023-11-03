@@ -23,7 +23,6 @@ arguments
         t_range (1, :) double
         options.CorrHandle (1, 1) function_handle = @(r) weighted_pearson_corrs(r, generate_expweights(dt, dt/3))
         options.RemoveInsignificant (1, :) logical = true
-
 end
 
 
