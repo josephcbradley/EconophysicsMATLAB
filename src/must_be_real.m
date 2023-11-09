@@ -13,7 +13,7 @@ end
 % None
 
 %% Calculation
-if ~isreal(A)
+if ~isreal(A) | isnan(A) | isinf(A)
     eid = 'Class:NotReal';
     msg = 'A is not real.';
     error(eid, msg)
