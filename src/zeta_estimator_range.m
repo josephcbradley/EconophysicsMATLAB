@@ -1,4 +1,4 @@
-function range_buffer = zeta_estimator_range(X, tau_range, q_range)
+function [zetas, SEs] = zeta_estimator_range(X, tau_range, q_range)
 
 arguments
     X(:, 1) double {must_be_real}
@@ -12,4 +12,6 @@ end
         q = q_range(i);
         [range_buffer(i, 1), range_buffer(i, 2)] = zeta_estimator(X, tau_range, q);
     end
+    zetas = range_buffer(:, 1);
+    SEs = range_buffer(:, 2);
 end
