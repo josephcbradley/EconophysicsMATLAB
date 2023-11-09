@@ -1,7 +1,8 @@
 function stylised_facts_report(R, P, dates)
 %% Check inputs
 arguments
-    R (:, :) double {must_be_real, must_be_numeric}
+    R (:, :) double {must_be_real}
+    P(:, :) double {must_be_real}
     dates (:, 1) datetime {lengths_must_match(R, dates)}
 end
 
