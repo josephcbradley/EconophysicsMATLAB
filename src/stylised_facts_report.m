@@ -36,9 +36,12 @@ if econometrics_available
     %check for stationarity 
     adf_results = zeros(N, 1);
     for i = 1:N 
-        adf_results(i) = adftest(R(:, i));
+        if sum(~isnan(R(:, i))) > 10 %check that we have enough data points
+            %for ADF test
+            adf_results(i) = adftest(R(:, i));
+        end
         if adf_results(i) == 0
-            warning("ADF test for series %i is non-stationary.")
+            warning(compose("ADF test for series %i is non-stationary.", i))
         end
     end
 else
@@ -128,8 +131,8 @@ end
 agg_gaussianity_plot = figure('visible','off');
 plot(dt_range, mean_positive_tail)
 xlabel("$\Delta t$", 'Interpreter', 'latex')
-ylabel("Mean $\alpha$ of positive tail", 'Interpreter', 'latex')
-title("Aggregational Gaussianity")
+ylabel("$\alpha^\star(\Delta t)$", 'Interpreter', 'latex')
+title("Aggregational Gaussianity: mean $\alpha(\Delta t)$ of positive tail", 'Interpreter', 'latex')
 exportgraphics(agg_gaussianity_plot, compose("%05i", current_plot_number) + "_aggregational_gaussianity.png", 'resolution', 300)
 current_plot_number = current_plot_number + 1;
 
@@ -193,61 +196,61 @@ errorbar(0:tau_max, av_corr_sq, sigma_corr_sq, ".-");
 errorbar(0:tau_max, av_corr_abs, sigma_corr_abs, ".-");
 hold off
 xlabel("$\tau$", 'interpreter', 'latex')
-ylabel("$\langle C(\tau)\rangle$", 'interpreter', 'latex')
+ylabel("$\rho^\star(\tau)$", 'interpreter', 'latex')
 title("Average autocorrelations of different functions of the returns")
-legend(["$\rho(r(t),r(t+1))$","$\rho(|r(t)|^2,|r(t+1)|^2)$","$\rho(|r(t)|,|r(t+1)|)$"], 'interpreter', 'latex')
+legend(["$\rho(r(i, t),r(i, t+ \tau))$","$\rho(|r(i, t)|^2,|r(t+\tau)|^2)$","$\rho(|r(i, t)|,|r(t+\tau)|)$"], 'interpreter', 'latex')
 exportgraphics(autocorrs_figure, compose("%05i", current_plot_number) + "_decay_of_autocorrs.png", "Resolution", 300)
 current_plot_number = current_plot_number + 1;
 
-%% Multiscaling
-q_range = (0.1:0.1:2)';
-tau_range = (30:250)';
-mean_price = mean(P, 2);
-[zeta, SEs] = zeta_estimator_range(mean_price, tau_range, q_range);
-%fit 2nd order polynomial to qHs (which are a function of qs
-mdl = polyfitn(q_range, zeta, 2);
-B = mdl.Coefficients(1);
-B_SE = mdl.ParameterStd(1);
-A = mdl.Coefficients(2);
-A_SE = mdl.ParameterStd(2);
-
-market_mode_scaling_figure = figure('Visible', 'off');
-errorbar(q_range, zeta, SEs)
-xlabel("$q$", 'Interpreter', 'latex')
-ylabel("$qH(q)$", 'Interpreter', 'latex')
-title("Generalised Hurst exponent for the market mode" + newline + ...
-    compose("$B = %.5f \\pm %.5f, A = %.5f \\pm %.5f$", B, B_SE, A, A_SE), ...
-    'Interpreter','latex')
-exportgraphics(market_mode_scaling_figure, compose("%05i", current_plot_number) + "_mktmode_mutliscaling.png", "Resolution", 300)
-current_plot_number = current_plot_number + 1;
-
-%calculate Hurst exponent for all stocks 
-zetas = NaN(N, length(q_range)); 
-SE_zetas = NaN(N, length(q_range));
-Bs = NaN(N, 1);
-SE_Bs = NaN(N, 1);
-for i = 1:N 
-    [zetas(i, :), SE_zetas(i, :)] = generalised_hurst_range(P(:, i), tau_range, q_range);
-    mdl = polyfitn(q_range, zetas(i, :), 2);
-    Bs(i) = mdl.Coefficients(1);
-    SE_Bs(i) = mdl.ParameterStd(1);
-end
-
-H1_distribution_figure = figure('Visible', 'off'); 
-histogram(zetas(:, q_range == 1), 'Normalization','probability')
-xlabel("$H(1)$", 'Interpreter', 'latex')
-ylabel("$P(H(1))$", 'Interpreter', 'latex')
-title("Histribution of Hurst exponents across stocks")
-exportgraphics(H1_distribution_figure, compose("%05i", current_plot_number) + "_H1_distribution.png", "Resolution", 300)
-current_plot_number = current_plot_number + 1;
-
-B_distribution_figure = figure("Visible", "off");
-histogram(Bs, 'Normalization', 'probability')
-xlabel("$B$", 'Interpreter','latex')
-ylabel("$P(B)$", 'Interpreter','latex')
-title("Distribution of multiscaling parameter $B$ across stocks", 'Interpreter','latex')
-exportgraphics(B_distribution_figure, compose("%05i", current_plot_number) + "_B_distribution.png", "Resolution", 300)
-current_plot_number = current_plot_number + 1;
+% %% Multiscaling
+% q_range = (0.1:0.1:2)';
+% tau_range = (30:250)';
+% mean_price = mean(P, 2);
+% [zeta, SEs] = zeta_estimator_range(mean_price, tau_range, q_range);
+% %fit 2nd order polynomial to qHs (which are a function of qs
+% mdl = polyfitn(q_range, zeta, 2);
+% B = mdl.Coefficients(1);
+% B_SE = mdl.ParameterStd(1);
+% A = mdl.Coefficients(2);
+% A_SE = mdl.ParameterStd(2);
+% 
+% market_mode_scaling_figure = figure('Visible', 'off');
+% errorbar(q_range, zeta, SEs)
+% xlabel("$q$", 'Interpreter', 'latex')
+% ylabel("$qH(q)$", 'Interpreter', 'latex')
+% title("Generalised Hurst exponent for the market mode" + newline + ...
+%     compose("$B = %.5f \\pm %.5f, A = %.5f \\pm %.5f$", B, B_SE, A, A_SE), ...
+%     'Interpreter','latex')
+% exportgraphics(market_mode_scaling_figure, compose("%05i", current_plot_number) + "_mktmode_mutliscaling.png", "Resolution", 300)
+% current_plot_number = current_plot_number + 1;
+% 
+% %calculate Hurst exponent for all stocks 
+% zetas = NaN(N, length(q_range)); 
+% SE_zetas = NaN(N, length(q_range));
+% Bs = NaN(N, 1);
+% SE_Bs = NaN(N, 1);
+% for i = 1:N 
+%     [zetas(i, :), SE_zetas(i, :)] = generalised_hurst_range(P(:, i), tau_range, q_range);
+%     mdl = polyfitn(q_range, zetas(i, :), 2);
+%     Bs(i) = mdl.Coefficients(1);
+%     SE_Bs(i) = mdl.ParameterStd(1);
+% end
+% 
+% H1_distribution_figure = figure('Visible', 'off'); 
+% histogram(zetas(:, q_range == 1), 'Normalization','probability')
+% xlabel("$H(1)$", 'Interpreter', 'latex')
+% ylabel("$P(H(1))$", 'Interpreter', 'latex')
+% title("Histribution of Hurst exponents across stocks")
+% exportgraphics(H1_distribution_figure, compose("%05i", current_plot_number) + "_H1_distribution.png", "Resolution", 300)
+% current_plot_number = current_plot_number + 1;
+% 
+% B_distribution_figure = figure("Visible", "off");
+% histogram(Bs, 'Normalization', 'probability')
+% xlabel("$B$", 'Interpreter','latex')
+% ylabel("$P(B)$", 'Interpreter','latex')
+% title("Distribution of multiscaling parameter $B$ across stocks", 'Interpreter','latex')
+% exportgraphics(B_distribution_figure, compose("%05i", current_plot_number) + "_B_distribution.png", "Resolution", 300)
+% current_plot_number = current_plot_number + 1;
 
 %% Momentum 
 % J = 252;
@@ -334,7 +337,7 @@ xlim([-0.5 1])
 xlabel("$C_{i, j}$", 'Interpreter', 'latex')
 ylabel("Number of $C_{i, j}$", 'Interpreter', 'latex')
 legend("Significant", "Insignificant")
-title("Distribution of correlation coefficients")
+title("Distribution of correlation coefficients - log returns")
 nexttile
 hold on
 histogram(resids_C_vec(resids_P_vec < 0.05), 'FaceColor', 'blue', 'BinWidth', bin_width, ...
@@ -346,15 +349,16 @@ xlim([-0.5 1])
 xlabel("$C_{i, j}$", 'Interpreter', 'latex')
 ylabel("Number of $C_{i, j}$", 'Interpreter', 'latex')
 legend("Significant", "Insignificant")
+title("Distribution of correlation coefficients - residuals from market mode")
 exportgraphics(detrending_corrs_figure, compose("%05i", current_plot_number) + "_detrended_corrs_distribution.png", "Resolution", 300)
 current_plot_number = current_plot_number + 1;
 
 %epps affect 
 %1. mean value of corr
 dt_range = 2:252;
-dt_mean_C = NaN(length(dt_range));
-dt_std_C = NaN(length(dt_range));
-dt_largest_eigenvalue = NaN(length(dt_range));
+dt_mean_C = NaN(length(dt_range), 1);
+dt_std_C = NaN(length(dt_range), 1);
+dt_largest_eigenvalue = NaN(length(dt_range), 1);
 for dt_idx = 1:length(dt_range)
     dt = dt_range(dt_idx);
     Rdt = movsum(R, [0 dt - 1], 1, 'omitnan', 'Endpoints', 'discard');
@@ -384,6 +388,7 @@ current_plot_number = current_plot_number + 1;
 %% Persistent topology
 %calculate an MST and a PMFG for every T 
 dt = 1000;
+w = generate_pearson_expweights(dt, dt / 3);
 t_range = dt:30:T;
 adj_matrix_size = N * (N - 1) * 0.5;
 mst_edges = zeros(adj_matrix_size, length(t_range), 'uint64');
@@ -393,9 +398,9 @@ for t_idx = 1:length(t_range)
     t = t_range(t_idx);
     local_tspan = t-dt+1:t;
     X = R(local_tspan, :);
-    C = corr(X);
+    C = weighted_pearson_corrs(X, w); 
     corr_coeffs_over_time(:, t_idx) = utri_to_vec(C);
-    C = force_symmetric(C);
+    %C = force_symmetric(C); %shouldn't be needed for our weighted corrs
     D = sqrt_dissimilarity(C);
     M = mst(sparse(D));
     mst_edges(:, t_idx) = full(utri_to_vec(M));
@@ -404,9 +409,11 @@ for t_idx = 1:length(t_range)
 end
 
 meta_C = corr(corr_coeffs_over_time);
+cls = [0 1];
 metacorrs_figure = figure('Visible','off');
 heatmap(meta_C)
 colormap("turbo")
+caxis(cls)
 ax = gca;
 ax.XData = dates(t_range);
 ax.YData = dates(t_range);
@@ -438,9 +445,29 @@ for i = 1:length(t_range)
     pmfg_corr(i, i) = 1;
 end
 
+pmfg_ES_figure = figure('Visible','off');
+heatmap(pmfg_corr)
+colormap(turbo)
+caxis(cls)
+ax = gca;
+ax.XData = dates(t_range);
+ax.YData = dates(t_range);
+for i = 0:length(t_range)-1
+    if mod(i, 30) == 0
+        continue
+    else
+        ax.XDisplayLabels{i+1} = {''};
+        ax.YDisplayLabels{i+1} = {''};
+    end
+end
+title("ES for PMFG edges")
+exportgraphics(pmfg_ES_figure, compose("%05i", current_plot_number) + "_pmfg_ES_heatmap.png", "Resolution", 300)
+current_plot_number = current_plot_number + 1;
+
 mst_ES_figure = figure('Visible','off');
 heatmap(mst_corr)
 colormap(turbo)
+caxis(cls)
 ax = gca;
 ax.XData = dates(t_range);
 ax.YData = dates(t_range);
@@ -456,9 +483,82 @@ title("ES for MST edges")
 exportgraphics(mst_ES_figure, compose("%05i", current_plot_number) + "_mst_ES_heatmap.png", "Resolution", 300)
 current_plot_number = current_plot_number + 1;
 
-pmfg_ES_figure = figure('Visible','off');
-heatmap(pmfg_corr)
+mst_residuals_edges = zeros(adj_matrix_size, length(t_range), 'uint64');
+pmfg_residuals_edges = zeros(adj_matrix_size, length(t_range), 'uint64');
+residuals_corr_coeffs_over_time = zeros(adj_matrix_size, length(t_range));
+for t_idx = 1:length(t_range)
+    t = t_range(t_idx);
+    local_tspan = t-dt+1:t;
+    X = resids(local_tspan, :);
+    C = weighted_pearson_corrs(X, w); 
+    residuals_corr_coeffs_over_time(:, t_idx) = utri_to_vec(C);
+    %C = force_symmetric(C); %shouldn't be needed for our weighted corrs
+    D = sqrt_dissimilarity(C);
+    M = mst(sparse(D));
+    mst_residuals_edges(:, t_idx) = full(utri_to_vec(M));
+    P = PMFG_T2s(C + 1);
+    pmfg_residuals_edges(:, t_idx) = full(utri_to_vec(P));
+end
+
+resids_meta_C = corr(residuals_corr_coeffs_over_time);
+resids_metacorrs_figure = figure('Visible','off');
+heatmap(resids_meta_C)
+colormap("turbo")
+caxis(cls)
+ax = gca;
+ax.XData = dates(t_range);
+ax.YData = dates(t_range);
+for i = 0:length(t_range)-1
+    if mod(i, 15) == 0
+        continue
+    else
+        ax.XDisplayLabels{i+1} = {''};
+        ax.YDisplayLabels{i+1} = {''};
+    end
+end
+title("Heatmap of metacorrelations for residuals")
+exportgraphics(resids_metacorrs_figure, compose("%05i", current_plot_number) + "_resids_metacorrs_heatmap.png", "Resolution", 300)
+current_plot_number = current_plot_number + 1;
+
+mst_residuals_corr = zeros(length(t_range)); %square!
+pmfg_residuals_corr = zeros(length(t_range)); %square!
+for i = 2:length(t_range)
+    for j = 1:i-1
+        mst_residuals_corr(i, j) = (1/(N-1)) * raw_ES_from_upper(mst_residuals_edges(:, i), mst_residuals_edges(:, j));
+        pmfg_residuals_corr(i, j) = (1 / (3*N - 6)) * raw_ES_from_upper(pmfg_residuals_edges(:, i), pmfg_residuals_edges(:, j));
+    end
+end
+
+mst_residuals_corr = mst_residuals_corr + mst_residuals_corr';
+pmfg_residuals_corr = pmfg_residuals_corr + pmfg_residuals_corr';
+for i = 1:length(t_range)
+    mst_residuals_corr(i, i) = 1;
+    pmfg_residuals_corr(i, i) = 1;
+end
+
+pmfg_residuals_ES_figure = figure('Visible','off');
+heatmap(pmfg_residuals_corr)
 colormap(turbo)
+caxis(cls)
+ax = gca;
+ax.XData = dates(t_range);
+ax.YData = dates(t_range);
+for i = 0:length(t_range)-1
+    if mod(i, 15) == 0
+        continue
+    else
+        ax.XDisplayLabels{i+1} = {''};
+        ax.YDisplayLabels{i+1} = {''};
+    end
+end
+title("ES for PMFG edges from residuals")
+exportgraphics(pmfg_residuals_ES_figure, compose("%05i", current_plot_number) + "_pmfg_residuals_ES_heatmap.png", "Resolution", 300)
+current_plot_number = current_plot_number + 1;
+
+mst_residuals_ES_figure = figure('Visible','off');
+heatmap(mst_residuals_corr)
+colormap(turbo)
+caxis(cls)
 ax = gca;
 ax.XData = dates(t_range);
 ax.YData = dates(t_range);
@@ -470,8 +570,8 @@ for i = 0:length(t_range)-1
         ax.YDisplayLabels{i+1} = {''};
     end
 end
-title("ES for PMFG edges")
-exportgraphics(pmfg_ES_figure, compose("%05i", current_plot_number) + "_pmfg_ES_heatmap.png", "Resolution", 300)
+title("ES for MST edges from residuals")
+exportgraphics(mst_residuals_ES_figure, compose("%05i", current_plot_number) + "_mst_residuals_ES_heatmap.png", "Resolution", 300)
 current_plot_number = current_plot_number + 1;
 
 
