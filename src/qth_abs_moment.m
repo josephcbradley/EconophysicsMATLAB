@@ -5,13 +5,7 @@ arguments
     tau (1, 1) double {must_be_integer, tau_small_enough(tau, X)}
     q (1, 1) double {must_be_real}
 end
-    %Calculte Q = E[|X(t+ tau) - X(t)|^q]
-    % %check tau is feasible 
-    % if tau >= length(X)
-    %     eid = 'size:DimensionMistmatch';
-    %     msg = 'tau is too large given X.';
-    %     error(eid, msg)
-    % end
+    %Calculate Q = E[|X(t+ tau) - X(t)|^q]
     T = length(X);
     %Q = E[|X(t+ tau) - X(t)|^q]
     Q = 0.0;
