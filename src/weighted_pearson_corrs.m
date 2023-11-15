@@ -41,7 +41,7 @@ C = (X_less_mean' .* w) * X;
 D = diag(C) + eps; %add tiny quantity eps to ensure things are not singular
 C = C ./ sqrt(D * D');
 %make symmetric 
-C = (C + C') / 2;
+C = force_symmetric(C);
 %guarantee pos_semi_def 
-C = nearest_pos_semi_definite(C);
+%C = nearest_pos_semi_definite(C);
 end
