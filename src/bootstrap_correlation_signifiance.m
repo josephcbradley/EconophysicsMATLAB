@@ -1,4 +1,4 @@
-function pvals = bootstrap_correlation_signifiance(X, real_C, nreps, C_handle)
+function pvals = bootstrap_correlation_signifiance(X, real_C, nreps, C_handle, options)
 %% Description 
 %calculate the p values for the correlations in X. 
 %uses a boostrap technique but repeatedly shuffling the rows in X
@@ -11,10 +11,17 @@ function pvals = bootstrap_correlation_signifiance(X, real_C, nreps, C_handle)
 % C_handle - a function handle that accepts and array of the same dimensions
 % as X and calculates 
 
+arguments
+    X
+    real_C
+    nreps
+    C_handle
+    options.AllowNaN (1, 1) logical  = false
+end
 %% Ouputs 
 % pvals - a N-by-N matrix of p-values for each value of C(i, j)
 %% Setup 
-if ~isempty(find(isnan(X), 1))
+if ~options.AllowNaN && anynan(X)
     error("NaNs in X!")
 end
 
