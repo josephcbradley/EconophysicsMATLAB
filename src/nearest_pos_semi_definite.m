@@ -7,7 +7,7 @@ function X_F = nearest_pos_semi_definite(B)
 %% Inputs
 % B - a real numeric matrix
 arguments
-    B (:, :) double {must_be_real}
+    B (:, :) double {must_be_real, issymmetric}
 end
 
 %% Ouputs 
