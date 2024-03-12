@@ -39,7 +39,7 @@ for i = 1:N
     available_data = ~isnan(X(:, i)) & ~isnan(Y);
     p = polyfit(Y(available_data), X(available_data, i), 1);
     residuals(:, i) = X(:, i) - polyval(p, Y);
-    alphas(i) = p(1);
-    betas(i) = p(2);
+    betas(i) = p(1);
+    alphas(i) = p(2);
 end
 end
