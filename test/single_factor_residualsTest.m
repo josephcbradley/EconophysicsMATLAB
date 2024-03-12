@@ -30,6 +30,12 @@ function testFunctionFour(testCase)
     assert(residual_rho < 1e-2)
 end
 
+function testFunctionFive(testCase)
+    %check that fit is correct 
+    [~, alpha_hat, beta_hat] = single_factor_residuals(testCase.TestData.B, testCase.TestData.Y);
+    assert(abs(alpha_hat - testCase.TestData.alpha) < 0.01)
+    assert(abs(beta_hat - testCase.TestData.beta) < 0.01)
+end
 function setup(testCase)  
     %create data
     testCase.TestData.T = 100000; 
@@ -40,6 +46,8 @@ function setup(testCase)
     testCase.TestData.Y = randn(testCase.TestData.T, 1);
     testCase.TestData.X_residuals = single_factor_residuals(testCase.TestData.X, testCase.TestData.Y);
     testCase.TestData.A = 0.1 + (0.3 * testCase.TestData.Y) + randn(testCase.TestData.T, 1);
-    testCase.TestData.B = 0.5 + (1.2 * testCase.TestData.Y) + randn(testCase.TestData.T, 1);
+    testCase.TestData.alpha = 0.5;
+    testCase.TestData.beta = 1.2;
+    testCase.TestData.B = testCase.TestData.alpha + (testCase.TestData.beta * testCase.TestData.Y) + randn(testCase.TestData.T, 1);
     testCase.TestData.AB_residuals = single_factor_residuals([testCase.TestData.A testCase.TestData.B], testCase.TestData.Y);
 end
